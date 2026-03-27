@@ -17,6 +17,10 @@ The workflow file is [`.github/workflows/sync-sub.yml`](.github/workflows/sync-s
 - Scheduled trigger: UTC `00:00` and `12:00`
 - Cron expression: `0 0,12 * * *`
 
+## China-friendly mirror
+
+- `sub.txt` mirror: `https://ghfile.geekertao.top/https://github.com/qq2661384348/sub/blob/master/sub.txt`
+
 ## Local run
 
 ```bash
