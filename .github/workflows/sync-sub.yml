@@ -1,0 +1,51 @@
+name: Sync sub.txt
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0,12 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Update sub.txt from upstream README
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/update_sub.py
+
+      - name: Detect sub.txt changes
+        id: changes
+        shell: bash
+        run: |
+          if git diff --quiet -- sub.txt; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "sub.txt is unchanged."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "sub.txt changed."
+          fi
+
+      - name: Commit and push updated sub.txt
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sub.txt
+          git commit -m "chore: sync sub.txt"
+          git push
